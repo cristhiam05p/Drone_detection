@@ -48,7 +48,7 @@ The only change within the code needs to be make in order for a custom model to 
 
 ![image](https://user-images.githubusercontent.com/64755713/119009397-b16e7980-b958-11eb-80e1-fc8dda73ffd7.png)
 
-## Convert weights to tensorflow
+## Convert weights to tensorflow and run the detector
 
 Then all that needs to be done is to convert the weights of the trained yolov4 or yolov4-tiny network to the corresponding tensorflow model.
 ```
