@@ -72,6 +72,12 @@ python detect_video.py --weights ./checkpoints/yolov4-tiny-416 --size 416 --mode
 The detection.py file contains a script that creates two processes (one for each camera) directed to the main of the detection_basic.py file. 
 In the future it is necessary to connect these two processes to a central process which, based on the detection data, is able to generate an approximation of the location of the object of interest.
 
+### Stereo detection
+
+The detect_stereo.py file is a script in which two instances of the detector are created, each of them taking images from a camera and basically performing two detection processes. This script worked very well with webcams or USB cameras, but in the case of IP cameras it was not possible because of the need to create a process for each of them. The main objective of this script was to take stereo images and based on a previously performed calibration, correct the images individually, as well as adjust them to match their epipolar lines, so that when detecting the object of interest, the distance to the object from the cameras could be easily calculated.
+
+
+
 ## References
 
 - [theAIGuysCode/yolov4-custom-functions](https://github.com/theAIGuysCode/yolov4-custom-functions).
