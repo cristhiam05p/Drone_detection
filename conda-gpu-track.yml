@@ -1,0 +1,22 @@
+name: yolov4-gpu-track
+
+dependencies:
+  - python==3.7
+  - pip
+  - matplotlib
+  - opencv
+  - cudnn
+  - cudatoolkit==10.1.243
+  - pip:
+    - opencv-contrib-python==3.4.4.19
+    - opencv-python==3.4.4.19
+    - tensorflow-gpu==2.3.0rc0
+    - lxml
+    - tqdm
+    - absl-py
+    - easydict
+    - pillow
+    - pytesseract
+    - onvif-zeep
+    - zeep
+    - pyserial
