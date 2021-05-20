@@ -21,14 +21,14 @@ The main objectives of this section are:
 
 ```
 # Tensorflow CPU
-conda env create -f conda-cpu.yml
-conda activate yolov4-cpu
+conda env create -f conda-cpu-track.yml
+conda activate yolov4-cpu-track
 ```
 
 ```
 # Tensorflow GPU
-conda env create -f conda-gpu.yml
-conda activate yolov4-gpu
+conda env create -f conda-gpu-track.yml
+conda activate yolov4-gpu-track
 ```
 
 
