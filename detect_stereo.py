@@ -81,7 +81,7 @@ def main(_argv):
         codec = cv2.VideoWriter_fourcc(*FLAGS.output_format)
         out_0 = cv2.VideoWriter(name_0, codec, fps_0, (width_0, height_0))
         ##
-        name_1 = FLAGS.output + "_1"
+        new_str = FLAGS.output[0:-4] + '_1' + FLAGS.output[-4:]
         # by default VideoCapture returns float instead of int
         width_1 = int(vid_1.get(cv2.CAP_PROP_FRAME_WIDTH))
         height_1 = int(vid_1.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -100,7 +100,7 @@ def main(_argv):
         map2R = np.loadtxt(os.path.join(path, "map2R.csv"), delimiter=",")
         #map1R = map1R.reshape((480, 640, 2))
         #map1L = map1L.reshape((480, 640, 2))
-
+        
         map1R = map1R.reshape((576, 704, 2))
         map1L = map1L.reshape((576, 704, 2))
 
