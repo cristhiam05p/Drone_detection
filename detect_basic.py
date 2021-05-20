@@ -45,9 +45,6 @@ def main(_argv):
     STRIDES, ANCHORS, NUM_CLASS, XYSCALE = utils.load_config(FLAGS)
     input_size = FLAGS.size
     video_path = FLAGS.video
-    # Get video name by using split method
-    video_name = video_path.split('/')[-1]
-    video_name = video_name.split('.')[0]
     saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
     infer = saved_model_loaded.signatures['serving_default']
 
@@ -63,42 +60,38 @@ def main(_argv):
     out = None
 
     if FLAGS.output:
-        print('entro aca')
-        print(FLAGS.output)
         # By default VideoCapture returns float instead of int
         width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = int(vid.get(cv2.CAP_PROP_FPS))
         codec = cv2.VideoWriter_fourcc(*FLAGS.output_format)
-        # Using IP cameras it is necessary to set a fixed fps value.
+        '''
+        Using IP cameras it is necessary to set a fixed fps value, due to the time it takes for the camera to initialise
+        '''
         fps = 10
         out = cv2.VideoWriter(FLAGS.output, codec, fps, (width, height))
 
     frame_num = 0
     initial_frame = 0
     tracking = False
-    time.sleep(3)
     while True:
+        # Stores the initial time to calculate the velocity of the system at each point in time.
         start_time = time.time()
         # Uncomment line below when using USBCamera
         #return_value, frame = vid.read()
         # Uncomment line below when using IPCamera
         frame = capture.getFrame()
-        #if return_value:
         if frame is not None:
             frame_num += 1
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image = Image.fromarray(frame)
         else:
             print('Video has ended or failed, try a different video format!')
             break
-
-        frame_size = frame.shape[:2]
         image_data = cv2.resize(frame, (input_size, input_size))
         image_data = image_data / 255.
         image_data = image_data[np.newaxis, ...].astype(np.float32)
 
-        # This section is the most time-consuming one.
+        # This section is the most time-consuming one, since detection is done here.
         ###############
         batch_data = tf.constant(image_data)
         pred_bbox = infer(batch_data)
@@ -107,6 +100,7 @@ def main(_argv):
             pred_conf = value[:, :, 4:]
         ################
 
+        # non_max_suppression function
         boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
             boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
             scores=tf.reshape(pred_conf, (tf.shape(pred_conf)[0], -1, tf.shape(pred_conf)[-1])),
@@ -144,7 +138,7 @@ def main(_argv):
         if FLAGS.tracking:
             # the following function determines whether or not tracking is performed
             flag = compare_tracking(pred_bbox, tracking_data)
-            # if a tracking list exists and the flag points to it, the objects in the tracking are plotted
+            # if a tracklist exists and the flag is true, the multitracker is updated and its bboxes are taken
             if tracking and flag:
                 (success, boxes_t) = trackers.update(frame)  # x0, y0, w h
                 boxes, scores, classes, num_objects = tracking_data
@@ -152,9 +146,7 @@ def main(_argv):
                     for i in range(num_objects):
                         box = boxes_t[i]
                         (x, y, w, h) = [int(v) for v in box]
-                        (x1, y1, x2, y2) = x, y, x+w, y+h
-                        box = (x1, y1, x2, y2)
-                        boxes[i] = box
+                        boxes[i] = (x1, y1, x2, y2) = x, y, x+w, y+h
                 else:
                     tracking = False
                 tracking_data = boxes, scores, classes, num_objects
