@@ -67,7 +67,10 @@ python detect_video.py --weights ./checkpoints/yolov4-tiny-416 --size 416 --mode
 
 ```
 
+## Deteccion con dos camaras IP
 
+The detection.py file contains a script that creates two processes (one for each camera) directed to the main of the detection_basic.py file. 
+In the future it is necessary to connect these two processes to a central process which, based on the detection data, is able to generate an approximation of the location of the object of interest.
 
 ## References
 
