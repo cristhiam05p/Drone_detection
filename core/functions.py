@@ -10,51 +10,53 @@ from pathlib import Path
 ##uncomment line below when using servos
 #from core.ptz import *
 
-# esta funcion compara las detecciones con los tracking. 
+
 def compare_tracking(data, tracking_data):
     '''
 
-    Esta funcion compara las listas de deteccion con la de tracking, para decidir si tomar las detecciones o actualizar
-    el tracking. Esto se hace, ya que actualizar el tracking es un proceso que hace mas lent la aplicacion.
-    Retorna una bandera, la cual le indica al sistema se actualiza el tracking.
+    This function compares the detection lists with the tracking list, to decide whether to take 
+    the detections or update the tracking. This is done, as updating the tracking is a process that 
+    slows down the application. It returns a flag, which tells the system to update the tracking.
 
-    :param data: lista de detecciones
-    :param tracking_data: lista de objetos en tracking
-    :return: bandera que determina si se actualiza el tracking
+    :param data: list of detections
+    :param tracking_data: list of objects to be tracked
+    :return: flag that determines whether the tracking is updated
     '''
     flag = True
     boxes, scores, classes, num_objects = data
     boxes_t, scores_t, classes_t, num_objects_t = tracking_data
-    # si el numero de deteciones es menor al de tracking, hacemos tracking
+    # If the number of detections is less than the number of tracking, we do tracking
     if num_objects < num_objects_t:
         print('no hay deteccion')
-    # si el numero de detecciones es mayor, tomamos las detecciones
+    # If the number of detections is greater, we take the detections
     elif num_objects > num_objects_t:
         print('mas detecciones')
         flag = False
-    # comparamos cada bbox (aun falta tener en cuanta la clase y que no importe que este en desorden)
-    # es decir, que la lista de tracking tenga otro orden a la de detecciones.
+    # we compare each bbox (we still need to take into account the class and that it doesn't matter if it is in disorder)
+    # i.e. the tracking list has a different order than the detections list.
     else:
         for i in range(num_objects):
             for j in range(4):
                 if abs(boxes[i][j] - boxes_t[i][j]) < 10:
                     flag = False
-                    # A continuacion se actualiza los objetos en la lista de tracking
+                    # The objects in the tracking list are then updated.
                     boxes_t[i][j] = boxes[i][j]
     return flag
 
 
 def track_several_objects(frame, data, allowed_classes, tracking):
     '''
+    creates and returns a new instance of multitracking, as well as a list of the objects it contains 
+    and the flag indicating that it is tracking.
 
-    :param frame: frame al que se le realizara tracking
-    :param data: lista de detecciones
-    :param allowed_classes: clases permitidas para realizar tracking (por defecto admite todas las clases)
-    :param tracking: bandera que indica si se esta realizando tracking
-    :return: trackers, tracking, tracking_data: trackers es la clase que hace tracking a multiples objetos,
-                                                tracking_data es la lista de objetos en tracking
+    :param frame: frame to be tracked
+    :param data: list of detections
+    :param allowed_classes: classes allowed for tracking (all classes are supported by default)
+    :param tracking: flag indicating whether tracking is in progress
+    :return: trackers, tracking, tracking_data: trackers is the class that tracks multiple objects,
+                                                tracking_data is the list of objects in tracking
     '''
-    trackers = cv2.MultiTracker_create()
+    trackers = cv2.MultiTracker_create() 
     boxes, scores, classes, num_objects = data
     boxes_t = []
     class_names = read_class_names(cfg.YOLO.CLASSES)
@@ -76,16 +78,16 @@ def track_several_objects(frame, data, allowed_classes, tracking):
     tracking_data = boxes, scores, classes, num_objects
     return trackers, tracking, tracking_data
 
-# function to change images based on stereo vision parameters and present 2 parallel images
+
 def stereo_vision(frame_1, frame_2, data):
     '''
+    function to change images based on stereo vision parameters and present 2 parallel images
 
-    :param frame_1: imagen de la camara 1
-    :param frame_2: imagen de la camara 2
-    :param data: detecciones
-    :return: cada uno de los frames con los ajustes para vision estereo
+    :param frame_1: image of camera 1
+    :param frame_2: image of camera 2
+    :param data: detections
+    :return: each of the frames with the settings for stereo viewing
     '''
-
     square_size, path, map1L, map2L, map1R, map2R = data
     stereo_1 = frame_1
     stereo_2 = frame_2
